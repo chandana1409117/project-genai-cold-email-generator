@@ -1,4 +1,5 @@
 import re
+from pypdf import PdfReader
 
 def clean_text(text):
     # Remove HTML tags
@@ -13,4 +14,11 @@ def clean_text(text):
     text = text.strip()
     # Remove extra whitespace
     text = ' '.join(text.split())
+    return text
+
+def read_pdf(file):
+    reader = PdfReader(file)
+    text = ""
+    for page in reader.pages:
+        text += page.extract_text()
     return text
