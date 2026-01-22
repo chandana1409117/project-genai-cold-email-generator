@@ -10,8 +10,21 @@ class Portfolio:
         self.chroma_client = chromadb.PersistentClient('vectorstore')
         self.collection = self.chroma_client.get_or_create_collection(name="portfolio")
 
-    def load_portfolio(self):
-        if not self.collection.count():
+    def load_portfolio(self, data=None):
+        if data:
+            # Clear existing collection to use new data
+            existing_ids = self.collection.get()['ids']
+            if existing_ids:
+                self.collection.delete(ids=existing_ids)
+            
+            for item in data:
+                 techstack = item.get("Techstack", "")
+                 links = item.get("Links", "")
+                 self.collection.add(documents=[techstack],
+                                     metadatas=[{"links": links}],
+                                     ids=[str(uuid.uuid4())])
+                                     
+        elif not self.collection.count():
             for _, row in self.data.iterrows():
                 self.collection.add(documents=row["Techstack"],
                                     metadatas={"links": row["Links"]},
